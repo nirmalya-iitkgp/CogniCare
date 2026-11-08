@@ -1,0 +1,6 @@
+{
+  "name": "NeuroPulse Diagnostics",
+  "description": "Clinical-grade gamified cognitive and motor assessment platform spanning seven human life stages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
