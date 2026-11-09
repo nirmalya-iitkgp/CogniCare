@@ -69,10 +69,53 @@ export function SplitHero({
     }
   }
 
+  const handleMouseEnter = (stageId: string) => {
+    if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
+    setHoveredStageId(stageId);
+  };
+
+  const handleMouseLeave = () => {
+    if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
+    setHoveredStageId(null);
+  };
+
   return (
-    <section className="relative w-full h-full min-h-0 bg-white select-none">
+    <section className="relative w-full h-full min-h-0 bg-white select-none flex flex-col">
+      {/* Mobile & Tablet Quick Touch Stage Selector Bar */}
+      <div className="lg:hidden sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-3 py-2 flex items-center gap-2 overflow-x-auto touch-pan-x shrink-0">
+        {LIFE_STAGES.map((s) => {
+          const isSelected = effectiveStageId === s.id;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setHoveredStageId(null);
+                onActiveStageChange(s.id);
+              }}
+              style={{
+                borderColor: isSelected ? s.accentColor : '#e2e8f0',
+                backgroundColor: isSelected ? `${s.accentColor}12` : '#ffffff',
+                color: isSelected ? s.accentColor : '#475569',
+              }}
+              className={`shrink-0 px-3 py-1.5 rounded-lg border text-xs font-medium flex items-center gap-1.5 touch-manipulation active:scale-95 transition-all shadow-2xs ${
+                isSelected ? 'font-bold ring-1 ring-inset' : 'hover:bg-slate-50'
+              }`}
+            >
+              <span className="font-mono text-[10px] opacity-75">{s.ageBracket}</span>
+              <span>{s.name}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* 7-Way Vertical Split Slices on Desktop, Smooth Accordion on Mobile/Tablet */}
-      <div className="flex flex-col lg:flex-row w-full h-full divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+      <div className="flex flex-col lg:flex-row w-full flex-1 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 min-h-0">
         {LIFE_STAGES.map((stage) => {
           const isExpanded = effectiveStageId === stage.id;
           const stageTests = CLINICAL_TESTS.filter(t => t.stageId === stage.id);
@@ -85,13 +128,16 @@ export function SplitHero({
           return (
             <div
               key={stage.id}
-              onMouseEnter={() => setHoveredStageId(stage.id)}
-              onMouseLeave={() => setHoveredStageId(null)}
-              onClick={() => onActiveStageChange(isExpanded ? '' : stage.id)}
+              onMouseEnter={() => handleMouseEnter(stage.id)}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => {
+                setHoveredStageId(null);
+                onActiveStageChange(isExpanded ? '' : stage.id);
+              }}
               style={{
                 background: isExpanded ? palette.activeBg : palette.bgGrad,
               }}
-              className={`relative transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between overflow-hidden group ${
+              className={`relative transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between overflow-hidden group touch-manipulation ${
                 isExpanded
                   ? 'lg:flex-[3.5] min-h-[360px] sm:min-h-[380px] lg:min-h-0'
                   : 'lg:flex-[1] min-h-[56px] sm:min-h-[64px] lg:min-h-0 hover:bg-slate-50'
@@ -211,7 +257,7 @@ export function SplitHero({
                               e.stopPropagation();
                               onSelectTest(test);
                             }}
-                            className={`p-3 sm:p-3.5 rounded-xl border transition-all text-left flex items-center justify-between gap-2.5 sm:gap-3 shadow-2xs ${
+                            className={`p-3 sm:p-3.5 rounded-xl border transition-all text-left flex items-center justify-between gap-2.5 sm:gap-3 shadow-2xs touch-manipulation active:scale-[0.99] ${
                               isMatch
                                 ? 'bg-amber-50 border-amber-400 ring-2 ring-amber-300'
                                 : 'bg-white/95 hover:bg-white border-slate-200 hover:border-slate-300'
@@ -228,7 +274,7 @@ export function SplitHero({
 
                             <button
                               style={{ backgroundColor: stage.accentColor }}
-                              className="px-3.5 sm:px-4 py-2 sm:py-1.5 text-xs font-semibold text-white rounded-lg shrink-0 shadow-2xs hover:opacity-95 active:scale-95 transition-transform"
+                              className="px-3.5 sm:px-4 py-2 sm:py-1.5 text-xs font-semibold text-white rounded-lg shrink-0 shadow-2xs hover:opacity-95 active:scale-95 transition-transform touch-manipulation"
                             >
                               Play
                             </button>
@@ -238,11 +284,8 @@ export function SplitHero({
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-3 hidden lg:flex items-center justify-between text-xs font-medium text-slate-600">
+                  <div className="mt-3 hidden lg:flex items-center text-xs font-medium text-slate-500">
                     <span className="font-mono text-[11px]">4 Games</span>
-                    <span style={{ color: stage.accentColor }} className="font-semibold text-xs">
-                      Open →
-                    </span>
                   </div>
                 )}
               </div>
